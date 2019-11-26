@@ -28,6 +28,10 @@ interface SumFormat {
 }
 
 interface ProductFormat {
+  product: ProductDetailsFormat
+}
+
+interface ProductDetailsFormat {
   fields: ProductFieldFormat[]
   extendable: boolean
 }
@@ -39,6 +43,10 @@ interface ProductFieldFormat {
 }
 
 interface FunctionTypeFormat {
+  function: FunctionTypeDetailsFormat
+}
+
+interface FunctionTypeDetailsFormat {
   arguments: ArgumentFormat[]
   resultType: TypeExpressionFormat
 }
@@ -176,25 +184,25 @@ const ProductCodec = new t.Type<m.Product, ProductFormat>(
   (u): u is m.Product => u instanceof m.Product,
   (u, c) =>
     either.chain(
-      t
-        .type({
+      t.type({
+        product: t.type({
           fields: t.array(ProductFieldCodec),
           extendable: t.boolean
         })
-        .validate(u, c),
+      }).validate(u, c),
       pf => {
         return t.success(
           new m.Product({
-            fields: pf.fields,
-            extendable: pf.extendable
+            fields: pf.product.fields,
+            extendable: pf.product.extendable
           })
         )
       }
     ),
-  product => ({
+  product => ({ product: {
     fields: product.fields.map(pf => ProductFieldCodec.encode(pf)),
     extendable: product.extendable
-  })
+  }})
 )
 
 const ArgumentCodec = new t.Type<m.Argument, ArgumentFormat>(
@@ -233,18 +241,18 @@ const FunctionTypeCodec = new t.Type<m.FunctionType, FunctionTypeFormat>(
   'FunctionType',
   (u): u is m.FunctionType => u instanceof m.FunctionType,
   (u, c) => either.chain(
-    t.type({ arguments: t.array(ArgumentCodec), resultType: TypeExpressionCodec }).validate(u, c),
+    t.type({function: t.type({ arguments: t.array(ArgumentCodec), resultType: TypeExpressionCodec })}).validate(u, c),
     ft => {
       return t.success(new m.FunctionType({
-        arguments: ft.arguments,
-        resultType: ft.resultType
+        arguments: ft.function.arguments,
+        resultType: ft.function.resultType
       }))
     }
   ),
-  ft => ({
+  ft => ({ function: {
     arguments: ft.arguments.map(arg => ArgumentCodec.encode(arg)),
     resultType: TypeExpressionCodec.encode(ft.resultType)
-  })
+  }})
 )
 
 const TypeExpressionCodec: t.Type<m.TypeExpression, TypeExpressionFormat> = t.union([
@@ -264,21 +272,74 @@ const orThrow: (e: t.Errors) => m.TypeExpression = (e: t.Errors) => {
 }
 
 export const test = () => {
-  const foo = new m.NonNullType({
-    of: new m.TypeRef({
-      id: 'blah'
+  // Test1: fn intsToStrings(ints: [Long!]!): [String!]!
+  const intsToStrings = new m.FunctionType({
+    arguments: [
+      { 
+        id: "ints",
+        name: "ints",
+        description: null,
+        type: new m.NonNullType({
+          of: new m.ListType({
+            of: new m.NonNullType({
+              of: new m.TypeRef({
+                id: 'Long'
+              })
+            })
+          })
+        })
+      }
+    ],
+    resultType: new m.NonNullType({
+      of: new m.ListType({
+        of: new m.NonNullType({
+          of: new m.TypeRef({
+            id: 'Long'
+          })
+        })
+      })
     })
   })
 
-  const encoded = TypeExpressionCodec.encode(foo)
 
-  console.log(encoded)
+  /*
+    {
+      "function": {
+        "arguments": [
+          {
+            "id": "ints",
+            "name": "ints",
+            "description": null,
+            "type": {
+              "nonNullOf": {
+                "listOf": {
+                  "nonNullOf": {
+                    "typeRef": "Long"
+                  }
+                }
+              }
+            }
+          }
+        ],
+        "resultType": {
+          "nonNullOf": {
+            "listOf": {
+              "nonNullOf": {
+                "typeRef": "Long"
+              }
+            }
+          }
+        }
+      }
+    }
+  */
+  const intsToStringsEncoded = TypeExpressionCodec.encode(intsToStrings)
+  const decoded = TypeExpressionCodec.decode(intsToStringsEncoded)
 
-  const encoded2 = JSON.stringify(foo)
-  const decoded = TypeExpressionCodec.decode(encoded2)
+  // Is it symmetric, i.e. decode(encode(x)) must be equal to x (obviously, with either etc)
+  console.log(JSON.stringify(decoded) === JSON.stringify(t.success(intsToStrings)))
 
-  console.log()
-  const likelyRight = getOrElse(orThrow)(decoded)
-  console.log(`LikelyRight: ${JSON.stringify(likelyRight)}`)
-  console.log(`InstanceOf NonNullType: ${likelyRight instanceof m.NonNullType}`)
+  // const likelyRight = getOrElse(orThrow)(decoded)
+  // console.log(`LikelyRight: ${JSON.stringify(likelyRight)}`)
+  // console.log(`InstanceOf NonNullType: ${likelyRight instanceof m.NonNullType}`)
 }
