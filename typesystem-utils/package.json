@@ -1,0 +1,42 @@
+{
+  "name": "typesystem-utils",
+  "version": "1.0.0",
+  "description": "",
+  "scripts": {
+    "test": "jest",
+    "build": "tsc",
+    "startdev": "tsc-watch --onSuccess \"node ./dist/main.js\"",
+    "start": "node ./dist/main.js",
+    "format": "prettier --write \"src/**/*.ts\"",
+    "generate": "graphql-codegen; prettier --write \"src/schemas/*-types.ts\""
+  },
+  "dependencies": {
+    "fp-ts": "^2.1.2",
+    "graphql": "^14.4.2",
+    "io-ts": "^2.0.1"
+  },
+  "devDependencies": {
+    "@types/graphql": "^14.2.2",
+    "@types/jest": "24.0.18",
+    "jest": "24.9.0",
+    "prettier": "1.18.2",
+    "ts-jest": "24.0.2",
+    "tsc-watch": "^2.4.0",
+    "typescript": "3.5.3"
+  },
+  "jest": {
+    "verbose": true,
+    "moduleFileExtensions": [
+      "ts",
+      "tsx",
+      "js"
+    ],
+    "setupFiles": [
+      "core-js"
+    ],
+    "transform": {
+      "\\.(ts|tsx)$": "ts-jest"
+    },
+    "testRegex": "/src/test/tests/.*\\.(ts|tsx|js)$"
+  }
+}
