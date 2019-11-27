@@ -2,6 +2,97 @@
 
 Collection of utilities to work with Q type system, specifically with its Public API representation
 
+# TypeExpression and Locator Scalars
+
+To use scalars, add them to your schema:
+
+```
+scalar Locator
+scalar TypeExpression
+```
+
+and add them to your resolver map:
+
+```
+  ...
+  Mutation: {
+    ...FunctionResolver.Mutation,
+    ...FunctionGraphResolver.Mutation,
+    ...ServiceResolver.Mutation,
+    ...TypeResolver.Mutation
+  },
+  Locator,
+  TypeExpression
+```
+
+You can also use `encodeLocator`, `decodeLocator`, `encodeTypeExpression` and `decodeTypeExpression`
+functions directly for encoding and validation.
+
+**Note**: To use this scalar, instances of model classes should be used, i.e. you must use
+`const locator = new IDRefLocator({ id: "myTypeId" })` instead of `const locator = { id: "myTypeId"})`,
+but as class constructors all receive an object with type properties, second constant can be used to
+instantiate an object of required class:
+
+```
+const locatorObject = { id: "myTypeId"})
+const locatorClassInstance = new IDRefLocator(locatorObject)
+```
+
+## Locator scalar
+
+Convenience data structure that is used to uniquely identify referred entity, e.g. types and functions.
+Locators can be used in type expressions to identify a type within a type expression, or to request
+information about types or functions from catalog service's public API.
+
+There are three types of locators:
+
+### IDRefLocator
+
+Locate entity (e.g. type or function) using its id.
+
+**Model**
+
+```
+new IDRefLocator({id: "myTypeId"})
+```
+
+**Serialization**
+
+```
+{ "idRef": "myTypeId"}
+```
+
+### ServiceAndNameLocator
+Locate entity (e.g. type or function) using its service id and name
+
+**Model**
+
+```
+new ServiceAndNameLocator({ serviceId: "io.maana.catalog" name: "updateService" })
+```
+
+**Serialization**
+
+```
+{ "serviceAndName": { "serviceId": "io.maana.catalog", name: "updateService" }}
+```
+
+### LocalNameLocator
+
+Locate entity (e.g. type or function) using its name within a local context,
+e.g. in the service being added.
+
+**Model**
+```
+new LocalNameLocator({ name: "ThatOtherType" })
+```
+
+**Serialization**
+
+```
+{ "localName": "ThatOtherType" }
+```
+
 ## TypeExpression Scalar
 
 Replacement for all types in Public API that are related to TypeExpression - i.e.:
@@ -15,11 +106,7 @@ In addition to scalar itself, this library exposes validation and serialization 
 
 ### Model types and serialization format
 
-Each type expression has JSON representation as one of the following variants:
-
-#### TypeRef
-
-To be replaces with locators.
+Each type expression has JSON representation as one of the following variants or locator (see above):
 
 #### ListType
 

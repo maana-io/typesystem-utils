@@ -1,14 +1,16 @@
+import {Locator} from './locator'
+
 /**
  * Type expression may be either:
  * - Anonymous type (type signature only)
  * - Predefined list of higher kinded types (e.g. List or Stream or Promise).
- * - Reference to a type
+ * - Reference to a type (using a locator)
  * 
  * This model intentionally doesn't support and doesn't validate 'named types' or functions
  * (yet) - the first goal is to simplify serialization/deserialization of type expressions
  */
 export type TypeExpression = 
-    TypeRef
+  Locator
   | ListType 
   | NonNullType
   | TypeParameter
@@ -16,14 +18,6 @@ export type TypeExpression =
   | Sum
   | Product
   | FunctionType
-
-
-export class TypeRef {
-  readonly id: string
-  constructor(props: TypeRef) {
-    this.id = props.id
-  }
-}
 
 export class ListType {
   readonly of: TypeExpression

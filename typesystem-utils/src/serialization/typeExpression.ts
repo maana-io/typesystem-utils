@@ -1,14 +1,11 @@
 import * as t from 'io-ts'
 import * as m from '../model/typeExpression'
-import { either, getOrElse, left } from 'fp-ts/lib/Either'
+import * as ls from './locator'
+import { either, isRight } from 'fp-ts/lib/Either'
 import { PathReporter } from 'io-ts/lib/PathReporter'
 
 interface ListTypeFormat {
   listOf: TypeExpressionFormat
-}
-
-interface TypeRefFormat {
-  typeRef: string
 }
 
 interface NonNullTypeFormat {
@@ -59,7 +56,6 @@ interface ArgumentFormat {
 }
 
 type TypeExpressionFormat =
-  | TypeRefFormat
   | NonNullTypeFormat
   | ListTypeFormat
   | TypeParameterFormat
@@ -67,22 +63,7 @@ type TypeExpressionFormat =
   | SumFormat
   | ProductFormat
   | FunctionTypeFormat
-
-const TypeRefCodec = new t.Type<m.TypeRef, TypeRefFormat>(
-  'TypeRef',
-  (u): u is m.TypeRef => u instanceof m.TypeRef,
-  (u, c) =>
-    either.chain(t.type({ typeRef: t.string }).validate(u, c), tr => {
-      return t.success(
-        new m.TypeRef({
-          id: tr.typeRef
-        })
-      )
-    }),
-  tr => {
-    return { typeRef: tr.id }
-  }
-)
+  | ls.LocatorFormat
 
 const ListTypeCodec = new t.Type<m.ListType, ListTypeFormat>(
   'ListType',
@@ -256,7 +237,7 @@ const FunctionTypeCodec = new t.Type<m.FunctionType, FunctionTypeFormat>(
 )
 
 const TypeExpressionCodec: t.Type<m.TypeExpression, TypeExpressionFormat> = t.union([
-  TypeRefCodec,
+  ls.LocatorCodec,
   ListTypeCodec,
   NonNullTypeCodec,
   TypeParameterCodec,
@@ -266,80 +247,23 @@ const TypeExpressionCodec: t.Type<m.TypeExpression, TypeExpressionFormat> = t.un
   FunctionTypeCodec
 ])
 
-const orThrow: (e: t.Errors) => m.TypeExpression = (e: t.Errors) => {
-  const errors = PathReporter.report(left(e))
-  throw new Error(errors.toString())
+/**
+ * Encodes type expression into a javascript object representing serialization format.
+ */
+export const encodeTypeExpression = (expr: m.TypeExpression): object => {
+  return TypeExpressionCodec.encode(expr)
 }
 
-export const test = () => {
-  // Test1: fn intsToStrings(ints: [Long!]!): [String!]!
-  const intsToStrings = new m.FunctionType({
-    arguments: [
-      { 
-        id: "ints",
-        name: "ints",
-        description: null,
-        type: new m.NonNullType({
-          of: new m.ListType({
-            of: new m.NonNullType({
-              of: new m.TypeRef({
-                id: 'Long'
-              })
-            })
-          })
-        })
-      }
-    ],
-    resultType: new m.NonNullType({
-      of: new m.ListType({
-        of: new m.NonNullType({
-          of: new m.TypeRef({
-            id: 'Long'
-          })
-        })
-      })
-    })
-  })
-
-
-  /*
-    {
-      "function": {
-        "arguments": [
-          {
-            "id": "ints",
-            "name": "ints",
-            "description": null,
-            "type": {
-              "nonNullOf": {
-                "listOf": {
-                  "nonNullOf": {
-                    "typeRef": "Long"
-                  }
-                }
-              }
-            }
-          }
-        ],
-        "resultType": {
-          "nonNullOf": {
-            "listOf": {
-              "nonNullOf": {
-                "typeRef": "Long"
-              }
-            }
-          }
-        }
-      }
-    }
-  */
-  const intsToStringsEncoded = TypeExpressionCodec.encode(intsToStrings)
-  const decoded = TypeExpressionCodec.decode(intsToStringsEncoded)
-
-  // Is it symmetric, i.e. decode(encode(x)) must be equal to x (obviously, with either etc)
-  console.log(JSON.stringify(decoded) === JSON.stringify(t.success(intsToStrings)))
-
-  // const likelyRight = getOrElse(orThrow)(decoded)
-  // console.log(`LikelyRight: ${JSON.stringify(likelyRight)}`)
-  // console.log(`InstanceOf NonNullType: ${likelyRight instanceof m.NonNullType}`)
+/**
+ * Decodes type expression from javascript object representing serialization format.
+ * If format is invalid, will throw an error with list of failed validations
+ */
+export const decodeTypeExpression = (u: unknown): m.TypeExpression => {
+  const decodedEither = TypeExpressionCodec.decode(u)
+  if(isRight(decodedEither)) {
+    return decodedEither.right
+  } else {
+    const errors = PathReporter.report(decodedEither)
+    throw new Error(errors.toString())
+  }
 }
