@@ -1,17 +1,17 @@
-import {Locator} from './locator'
+import { Locator } from './locator'
 
 /**
  * Type expression may be either:
  * - Anonymous type (type signature only)
  * - Predefined list of higher kinded types (e.g. List or Stream or Promise).
  * - Reference to a type (using a locator)
- * 
+ *
  * This model intentionally doesn't support and doesn't validate 'named types' or functions
  * (yet) - the first goal is to simplify serialization/deserialization of type expressions
  */
-export type TypeExpression = 
-  Locator
-  | ListType 
+export type TypeExpression =
+  | Locator
+  | ListType
   | NonNullType
   | TypeParameter
   | Scalar

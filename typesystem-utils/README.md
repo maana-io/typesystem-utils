@@ -14,6 +14,8 @@ scalar TypeExpression
 and add them to your resolver map:
 
 ```
+import { Locator, TypeExpression } from 'typesystem-utils/scalars'
+
   ...
   Mutation: {
     ...FunctionResolver.Mutation,
@@ -34,6 +36,8 @@ but as class constructors all receive an object with type properties, second con
 instantiate an object of required class:
 
 ```
+import { IDRefLocator } from 'typesystem-utils'
+
 const locatorObject = { id: "myTypeId"})
 const locatorClassInstance = new IDRefLocator(locatorObject)
 ```

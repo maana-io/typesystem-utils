@@ -38,37 +38,40 @@ export const IDRefLocatorCodec = new t.Type<l.IDRefLocator, IDRefFormat>(
   }
 )
 
-export const ServiceAndNameLocatorCodec = new t.Type<l.ServiceAndNameLocator, ServiceAndNameLocatorFormat>(
+export const ServiceAndNameLocatorCodec = new t.Type<
+  l.ServiceAndNameLocator,
+  ServiceAndNameLocatorFormat
+>(
   'ServiceAndNameLocator',
   (u): u is l.ServiceAndNameLocator => u instanceof l.ServiceAndNameLocator,
   (u, c) =>
     either.chain(
-      t.type({ serviceAndName: t.type({ serviceId: t.string, name: t.string})}).validate(u, c), 
+      t.type({ serviceAndName: t.type({ serviceId: t.string, name: t.string }) }).validate(u, c),
       locator => {
-      return t.success(
-        new l.ServiceAndNameLocator({
-          serviceId: locator.serviceAndName.serviceId,
-          name: locator.serviceAndName.name,
-        })
-      )
-    }),
-    locator => {
-      return { serviceAndName: { serviceId: locator.serviceId, name: locator.name }}
-    }
+        return t.success(
+          new l.ServiceAndNameLocator({
+            serviceId: locator.serviceAndName.serviceId,
+            name: locator.serviceAndName.name
+          })
+        )
+      }
+    ),
+  locator => {
+    return { serviceAndName: { serviceId: locator.serviceId, name: locator.name } }
+  }
 )
 
 export const LocalNameLocatorCodec = new t.Type<l.LocalNameLocator, LocalNameLocatorFormat>(
   'LocalNameLocator',
   (u): u is l.LocalNameLocator => u instanceof l.LocalNameLocator,
-  (u, c) => 
-  either.chain(
-    t.type({ localName: t.string }).validate(u, c),
-    locator => {
-      return t.success(new l.LocalNameLocator({
-        name: locator.localName
-      }))
-    }
-  ),
+  (u, c) =>
+    either.chain(t.type({ localName: t.string }).validate(u, c), locator => {
+      return t.success(
+        new l.LocalNameLocator({
+          name: locator.localName
+        })
+      )
+    }),
   locator => {
     return { localName: locator.name }
   }
@@ -93,7 +96,7 @@ export const encodeLocator = (locator: l.Locator): object => {
  */
 export const decodeLocator = (u: unknown): l.Locator => {
   const decodedEither = LocatorCodec.decode(u)
-  if(isRight(decodedEither)) {
+  if (isRight(decodedEither)) {
     return decodedEither.right
   } else {
     const errors = PathReporter.report(decodedEither)

@@ -165,12 +165,14 @@ const ProductCodec = new t.Type<m.Product, ProductFormat>(
   (u): u is m.Product => u instanceof m.Product,
   (u, c) =>
     either.chain(
-      t.type({
-        product: t.type({
-          fields: t.array(ProductFieldCodec),
-          extendable: t.boolean
+      t
+        .type({
+          product: t.type({
+            fields: t.array(ProductFieldCodec),
+            extendable: t.boolean
+          })
         })
-      }).validate(u, c),
+        .validate(u, c),
       pf => {
         return t.success(
           new m.Product({
@@ -180,10 +182,12 @@ const ProductCodec = new t.Type<m.Product, ProductFormat>(
         )
       }
     ),
-  product => ({ product: {
-    fields: product.fields.map(pf => ProductFieldCodec.encode(pf)),
-    extendable: product.extendable
-  }})
+  product => ({
+    product: {
+      fields: product.fields.map(pf => ProductFieldCodec.encode(pf)),
+      extendable: product.extendable
+    }
+  })
 )
 
 const ArgumentCodec = new t.Type<m.Argument, ArgumentFormat>(
@@ -221,19 +225,28 @@ const ArgumentCodec = new t.Type<m.Argument, ArgumentFormat>(
 const FunctionTypeCodec = new t.Type<m.FunctionType, FunctionTypeFormat>(
   'FunctionType',
   (u): u is m.FunctionType => u instanceof m.FunctionType,
-  (u, c) => either.chain(
-    t.type({function: t.type({ arguments: t.array(ArgumentCodec), resultType: TypeExpressionCodec })}).validate(u, c),
-    ft => {
-      return t.success(new m.FunctionType({
-        arguments: ft.function.arguments,
-        resultType: ft.function.resultType
-      }))
+  (u, c) =>
+    either.chain(
+      t
+        .type({
+          function: t.type({ arguments: t.array(ArgumentCodec), resultType: TypeExpressionCodec })
+        })
+        .validate(u, c),
+      ft => {
+        return t.success(
+          new m.FunctionType({
+            arguments: ft.function.arguments,
+            resultType: ft.function.resultType
+          })
+        )
+      }
+    ),
+  ft => ({
+    function: {
+      arguments: ft.arguments.map(arg => ArgumentCodec.encode(arg)),
+      resultType: TypeExpressionCodec.encode(ft.resultType)
     }
-  ),
-  ft => ({ function: {
-    arguments: ft.arguments.map(arg => ArgumentCodec.encode(arg)),
-    resultType: TypeExpressionCodec.encode(ft.resultType)
-  }})
+  })
 )
 
 const TypeExpressionCodec: t.Type<m.TypeExpression, TypeExpressionFormat> = t.union([
@@ -260,7 +273,7 @@ export const encodeTypeExpression = (expr: m.TypeExpression): object => {
  */
 export const decodeTypeExpression = (u: unknown): m.TypeExpression => {
   const decodedEither = TypeExpressionCodec.decode(u)
-  if(isRight(decodedEither)) {
+  if (isRight(decodedEither)) {
     return decodedEither.right
   } else {
     const errors = PathReporter.report(decodedEither)
