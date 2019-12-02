@@ -13,6 +13,9 @@
     "format": "prettier --write \"src/**/*.ts\"",
     "generate": "graphql-codegen; prettier --write \"src/schemas/*-types.ts\""
   },
+  "publishConfig": {
+    "registry": "https://npm.corp.maana.io/artifactory/api/npm/npm"
+  },
   "dependencies": {
     "fp-ts": "^2.1.2",
     "graphql": "^14.4.2",
