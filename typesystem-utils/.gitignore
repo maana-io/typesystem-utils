@@ -1,2 +1,6 @@
 node_modules
-dist
+model
+scalars
+serialization/
+index.d.ts
+index.js

@@ -19,3 +19,5 @@ export {
   encodeTypeExpression,
   decodeTypeExpression
 } from './serialization'
+
+export * from './scalars'
