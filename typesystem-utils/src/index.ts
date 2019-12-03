@@ -10,7 +10,9 @@ export {
   Scalar,
   Sum,
   Product,
-  FunctionType
+  ProductField,
+  FunctionType,
+  Argument
 } from './model'
 
 export {
