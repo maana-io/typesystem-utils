@@ -8,7 +8,5 @@ export {
   Scalar,
   Sum,
   Product,
-  ProductField,
-  FunctionType,
-  Argument
+  FunctionType
 } from './typeExpression'
