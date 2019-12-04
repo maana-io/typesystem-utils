@@ -35,7 +35,7 @@ interface ProductDetailsFormat {
 
 interface ProductFieldFormat {
   name: string
-  description: string | null
+  description: string | null | undefined
   type: TypeExpressionFormat
 }
 
@@ -51,7 +51,7 @@ interface FunctionTypeDetailsFormat {
 interface ArgumentFormat {
   id: string
   name: string
-  description: string | null
+  description: string | null | undefined
   type: TypeExpressionFormat
 }
 

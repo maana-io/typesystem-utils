@@ -59,7 +59,7 @@ export class Sum {
 
 export class ProductField {
   readonly name: string
-  readonly description: string | null
+  readonly description?: string | null
   readonly type: TypeExpression
 
   constructor(props: ProductField) {
@@ -92,7 +92,7 @@ export class FunctionType {
 export class Argument {
   readonly id: string
   readonly name: string
-  readonly description: string | null
+  readonly description?: string | null
   readonly type: TypeExpression
 
   constructor(props: Argument) {
