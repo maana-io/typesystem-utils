@@ -84,6 +84,9 @@ const NonNullTypeCodec = new t.Type<m.NonNullType, NonNullTypeFormat>(
   (u): u is m.NonNullType => u instanceof m.NonNullType,
   (u, c) =>
     either.chain(t.interface({ nonNullOf: TypeExpressionCodec }).validate(u, c), nno => {
+      if (nno.nonNullOf instanceof m.NonNullType) {
+        return t.failure(u, c, 'Cannot have a NonNullType of a NonNullType')
+      }
       return t.success(
         new m.NonNullType({
           of: nno.nonNullOf
@@ -98,6 +101,9 @@ const TypeParameterCodec = new t.Type<m.TypeParameter, TypeParameterFormat>(
   (u): u is m.TypeParameter => u instanceof m.TypeParameter,
   (u, c) =>
     either.chain(t.type({ typeParameter: t.string }).validate(u, c), tp => {
+      if (tp.typeParameter.length == 0) {
+        return t.failure(u, c, 'Cannot have a TypeParameter with empty Name field')
+      }
       return t.success(
         new m.TypeParameter({
           name: tp.typeParameter
