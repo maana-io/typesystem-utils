@@ -34,7 +34,8 @@ interface ProductDetailsFormat {
 }
 
 interface ProductFieldFormat {
-  name: string
+  id: string | null | undefined
+  name: string | null | undefined
   description: string | null | undefined
   type: TypeExpressionFormat
 }
@@ -49,8 +50,8 @@ interface FunctionTypeDetailsFormat {
 }
 
 interface ArgumentFormat {
-  id: string
-  name: string
+  id: string | null | undefined
+  name: string | null | undefined
   description: string | null | undefined
   type: TypeExpressionFormat
 }
@@ -148,7 +149,8 @@ const ProductFieldCodec = new t.Type<m.ProductField, ProductFieldFormat>(
     either.chain(
       t
         .type({
-          name: t.string,
+          id: t.union([t.string, t.null]),
+          name: t.union([t.string, t.null]),
           description: t.union([t.string, t.null]),
           type: TypeExpressionCodec
         })
@@ -156,6 +158,7 @@ const ProductFieldCodec = new t.Type<m.ProductField, ProductFieldFormat>(
       pf => {
         return t.success(
           new m.ProductField({
+            id: pf.id,
             name: pf.name,
             description: pf.description,
             type: pf.type
@@ -163,7 +166,12 @@ const ProductFieldCodec = new t.Type<m.ProductField, ProductFieldFormat>(
         )
       }
     ),
-  pf => ({ name: pf.name, description: pf.description, type: TypeExpressionCodec.encode(pf.type) })
+  pf => ({
+    id: pf.id,
+    name: pf.name,
+    description: pf.description,
+    type: TypeExpressionCodec.encode(pf.type)
+  })
 )
 
 const ProductCodec = new t.Type<m.Product, ProductFormat>(
@@ -203,8 +211,8 @@ const ArgumentCodec = new t.Type<m.Argument, ArgumentFormat>(
     either.chain(
       t
         .type({
-          id: t.string,
-          name: t.string,
+          id: t.union([t.string, t.null]),
+          name: t.union([t.string, t.null]),
           description: t.union([t.string, t.null]),
           type: TypeExpressionCodec
         })
