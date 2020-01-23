@@ -29,6 +29,10 @@ export class ListType {
 export class NonNullType {
   readonly of: TypeExpression
   constructor(props: NonNullType) {
+    if (props.of instanceof NonNullType) {
+      throw new Error('Cannot have a NonNullType of a NonNullType')
+    }
+
     this.of = props.of
   }
 }
@@ -37,6 +41,10 @@ export class TypeParameter {
   readonly name: string
 
   constructor(props: TypeParameter) {
+    if (props.name.length == 0) {
+      throw new Error('Cannot have a TypeParameter with empty Name field')
+    }
+
     this.name = props.name
   }
 }
