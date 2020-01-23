@@ -24,6 +24,7 @@
   "devDependencies": {
     "@types/graphql": "^14.2.2",
     "@types/jest": "24.0.18",
+    "core-js": "3.2.1",
     "jest": "24.9.0",
     "prettier": "1.18.2",
     "ts-jest": "24.0.2",
@@ -43,6 +44,6 @@
     "transform": {
       "\\.(ts|tsx)$": "ts-jest"
     },
-    "testRegex": "/src/test/tests/.*\\.(ts|tsx|js)$"
+    "testRegex": "/src/test/.*\\.(ts|tsx|js)$"
   }
 }
