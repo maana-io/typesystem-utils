@@ -125,6 +125,15 @@ export class Argument {
 }
 
 export function isValidNamedTypeSignature(signature: TypeExpression): boolean {
+  if (signature instanceof Scalar || signature instanceof Sum || signature instanceof Product) {
+    return validateSignature(signature)
+  } else {
+    console.log('NamedType Signature root must be Scalar, Sum, or Product.')
+    return false
+  }
+}
+
+function validateSignature(signature: TypeExpression): boolean {
   if (signature === undefined) return false
 
   if (
@@ -143,7 +152,7 @@ export function isValidNamedTypeSignature(signature: TypeExpression): boolean {
     }
     return true
   } else if (signature instanceof ListType) {
-    return isValidNamedTypeSignature(signature.of)
+    return validateSignature(signature.of)
   } else if (signature instanceof NonNullType) {
     if (signature.of instanceof NonNullType) {
       console.log(
@@ -151,13 +160,13 @@ export function isValidNamedTypeSignature(signature: TypeExpression): boolean {
       )
       return false
     } else {
-      return isValidNamedTypeSignature(signature.of)
+      return validateSignature(signature.of)
     }
   } else if (signature instanceof Sum) {
     // OPEN ISSUE -- Should Sum enforce uniqueness of its variants?
     // Note: Array.prototype.some() will return False on an empty array. This works
     // because an empty Product Field array is a valid Product signature.
-    return !signature.variants.some(sig => !isValidNamedTypeSignature(sig))
+    return !signature.variants.some(sig => !validateSignature(sig))
   } else if (signature instanceof Product) {
     const fieldNames: string[] = []
     // Note: Array.prototype.some() will return False on an empty array. This works
@@ -173,7 +182,7 @@ export function isValidNamedTypeSignature(signature: TypeExpression): boolean {
         return true
       }
       fieldNames.push(field.name)
-      return !isValidNamedTypeSignature(field.type)
+      return !validateSignature(field.type)
     })
   } else if (signature instanceof FunctionType) {
     const argumentNames: string[] = []
@@ -190,10 +199,10 @@ export function isValidNamedTypeSignature(signature: TypeExpression): boolean {
         return true
       }
       argumentNames.push(arg.name)
-      return !isValidNamedTypeSignature(arg.type)
+      return !validateSignature(arg.type)
     })
 
-    return argumentsValidCheck && isValidNamedTypeSignature(signature.resultType)
+    return argumentsValidCheck && validateSignature(signature.resultType)
   } else {
     return false
   }

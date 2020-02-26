@@ -84,7 +84,7 @@ it('isValidTypeExpression can validate TypeExpressions', () => {
   const validListOfValidScalar = new ListType({ of: validScalar })
   expect(isValidNamedTypeSignature(invalidListOfJsonObject)).toBe(false)
   expect(isValidNamedTypeSignature(invalidListOfTypeParam)).toBe(false)
-  expect(isValidNamedTypeSignature(validListOfValidScalar)).toBe(true)
+  expect(isValidNamedTypeSignature(validListOfValidScalar)).toBe(false)
 
   // NonNull
   const invalidNonNullOfJsonObject = new NonNullType({ of: { id: 'Anything' } })
@@ -92,7 +92,7 @@ it('isValidTypeExpression can validate TypeExpressions', () => {
   const validNonNullOfValidScalar = new NonNullType({ of: validScalar })
   expect(isValidNamedTypeSignature(invalidNonNullOfJsonObject)).toBe(false)
   expect(isValidNamedTypeSignature(invalidNonNullOfTypeParam)).toBe(false)
-  expect(isValidNamedTypeSignature(validNonNullOfValidScalar)).toBe(true)
+  expect(isValidNamedTypeSignature(validNonNullOfValidScalar)).toBe(false)
 
   // Sum
   const invalidSumOfInvalidJsonObject = new Sum({ variants: [{ id: 'Anything' }] })
@@ -117,7 +117,7 @@ it('isValidTypeExpression can validate TypeExpressions', () => {
     type: invalidNonNullOfJsonObject
   })
   const validProductFieldOfValidSum = new ProductField({
-    name: 'validSumOfEmptyVariants',
+    name: 'validProductFieldOfValidSum',
     type: validSumOfEmptyVariants
   })
 
@@ -187,6 +187,16 @@ it('isValidTypeExpression can validate TypeExpressions', () => {
   expect(isValidNamedTypeSignature(invalidFunctionTypeOfInvalidArgumentType)).toBe(false)
   expect(isValidNamedTypeSignature(invalidFunctionTypeOfInvalidResultType)).toBe(false)
 
-  expect(isValidNamedTypeSignature(validFunctionTypeEmptyArguments)).toBe(true)
-  expect(isValidNamedTypeSignature(validFunctionTypeSingleArgument)).toBe(true)
+  expect(isValidNamedTypeSignature(validFunctionTypeEmptyArguments)).toBe(false)
+  expect(isValidNamedTypeSignature(validFunctionTypeSingleArgument)).toBe(false)
+
+  // Sum and Products of FunctionType
+  const invalidSumOfInvalidFunction = new Sum({variants: [validFunctionTypeEmptyArguments, validFunctionTypeSingleArgument, validProductSingleField, invalidFunctionTypeOfNonuniqueArgumentNames]})
+  expect(isValidNamedTypeSignature(invalidSumOfInvalidFunction)).toBe(false)
+  const validSumOfValidFunction = new Sum({variants: [validFunctionTypeEmptyArguments, validFunctionTypeSingleArgument, validProductSingleField, validSumOfMultipleVariants]})
+  expect(isValidNamedTypeSignature(validSumOfValidFunction)).toBe(true)
+
+  const invalidProductFieldOfInvalidFunction = new ProductField({ name: 'invalidProductFieldOfInvalidFunction', type: invalidFunctionTypeOfInvalidResultType })
+  const invalidProductOfInvalidFunction = new Product({ fields: [validProductFieldOfValidSum, invalidProductFieldOfInvalidFunction], extendable: true })
+  expect(isValidNamedTypeSignature(invalidProductOfInvalidFunction)).toBe(false)
 })
