@@ -119,6 +119,10 @@ const ScalarCodec = new t.Type<m.Scalar, ScalarFormat>(
   (u): u is m.Scalar => u instanceof m.Scalar,
   (u, c) =>
     either.chain(t.type({ scalar: t.string }).validate(u, c), s => {
+      if (s.scalar.length == 0) {
+        return t.failure(u, c, 'Cannot have a Scalar with empty id field')
+      }
+      
       return t.success(
         new m.Scalar({
           id: s.scalar

@@ -32,6 +32,14 @@ it('cannot parse TypeParameter with empty name', () => {
   }).toThrowError('Cannot have a TypeParameter with empty Name field')
 })
 
+it('cannot parse Scalar with empty ID', () => {
+  const invalidEmpty = { scalar: '' }
+
+  expect(() => {
+    TypeExpression.parseValue(invalidEmpty)
+  }).toThrowError('Cannot have a Scalar with empty id field')
+})
+
 it('cannot construct Scalar with empty ID', () => {
   expect(() => {
     new Scalar({ id: '' })
@@ -191,12 +199,32 @@ it('isValidTypeExpression can validate TypeExpressions', () => {
   expect(isValidNamedTypeSignature(validFunctionTypeSingleArgument)).toBe(false)
 
   // Sum and Products of FunctionType
-  const invalidSumOfInvalidFunction = new Sum({variants: [validFunctionTypeEmptyArguments, validFunctionTypeSingleArgument, validProductSingleField, invalidFunctionTypeOfNonuniqueArgumentNames]})
+  const invalidSumOfInvalidFunction = new Sum({
+    variants: [
+      validFunctionTypeEmptyArguments,
+      validFunctionTypeSingleArgument,
+      validProductSingleField,
+      invalidFunctionTypeOfNonuniqueArgumentNames
+    ]
+  })
   expect(isValidNamedTypeSignature(invalidSumOfInvalidFunction)).toBe(false)
-  const validSumOfValidFunction = new Sum({variants: [validFunctionTypeEmptyArguments, validFunctionTypeSingleArgument, validProductSingleField, validSumOfMultipleVariants]})
+  const validSumOfValidFunction = new Sum({
+    variants: [
+      validFunctionTypeEmptyArguments,
+      validFunctionTypeSingleArgument,
+      validProductSingleField,
+      validSumOfMultipleVariants
+    ]
+  })
   expect(isValidNamedTypeSignature(validSumOfValidFunction)).toBe(true)
 
-  const invalidProductFieldOfInvalidFunction = new ProductField({ name: 'invalidProductFieldOfInvalidFunction', type: invalidFunctionTypeOfInvalidResultType })
-  const invalidProductOfInvalidFunction = new Product({ fields: [validProductFieldOfValidSum, invalidProductFieldOfInvalidFunction], extendable: true })
+  const invalidProductFieldOfInvalidFunction = new ProductField({
+    name: 'invalidProductFieldOfInvalidFunction',
+    type: invalidFunctionTypeOfInvalidResultType
+  })
+  const invalidProductOfInvalidFunction = new Product({
+    fields: [validProductFieldOfValidSum, invalidProductFieldOfInvalidFunction],
+    extendable: true
+  })
   expect(isValidNamedTypeSignature(invalidProductOfInvalidFunction)).toBe(false)
 })
