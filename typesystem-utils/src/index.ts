@@ -12,7 +12,9 @@ export {
   Product,
   ProductField,
   FunctionType,
-  Argument
+  Argument,
+  isValidLocator,
+  isValidNamedTypeSignature
 } from './model'
 
 export {

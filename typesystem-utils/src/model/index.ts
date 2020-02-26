@@ -1,4 +1,4 @@
-export { Locator, IDRefLocator, LocalNameLocator, ServiceAndNameLocator } from './locator'
+export { Locator, IDRefLocator, LocalNameLocator, ServiceAndNameLocator, isValidLocator } from './locator'
 
 export {
   TypeExpression,
@@ -10,5 +10,6 @@ export {
   Product,
   ProductField,
   FunctionType,
-  Argument
+  Argument,
+  isValidNamedTypeSignature
 } from './typeExpression'

@@ -1,4 +1,11 @@
-import { Locator } from './locator'
+import {
+  Locator,
+  IDRefLocator,
+  ServiceAndNameLocator,
+  LocalNameLocator,
+  isValidLocator
+} from './locator'
+import { TypeExpression } from '../scalars'
 
 /**
  * Type expression may be either:
@@ -53,6 +60,10 @@ export class Scalar {
   readonly id: string
 
   constructor(props: Scalar) {
+    if (props.id.length <= 0) {
+      throw new Error('Cannot have a Scalar with ID of an empty string')
+    }
+
     this.id = props.id
   }
 }
@@ -110,5 +121,80 @@ export class Argument {
     this.name = props.name
     this.description = props.description
     this.type = props.type
+  }
+}
+
+export function isValidNamedTypeSignature(signature: TypeExpression): boolean {
+  if (signature === undefined) return false
+
+  if (
+    signature instanceof IDRefLocator ||
+    signature instanceof ServiceAndNameLocator ||
+    signature instanceof LocalNameLocator
+  ) {
+    return isValidLocator(signature)
+  } else if (signature instanceof TypeParameter) {
+    console.log(`NamedType cannot contain a TypeParameter. ${JSON.stringify(signature)}`)
+    return false
+  } else if (signature instanceof Scalar) {
+    if (signature.id === undefined || signature.id.length <= 0) {
+      console.log(`NamedType cannot define a Scalar with no ID. ${JSON.stringify(signature)}`)
+      return false
+    }
+    return true
+  } else if (signature instanceof ListType) {
+    return isValidNamedTypeSignature(signature.of)
+  } else if (signature instanceof NonNullType) {
+    if (signature.of instanceof NonNullType) {
+      console.log(
+        `NamedType cannot contain NonNullType of a NonNullType. ${JSON.stringify(signature)}`
+      )
+      return false
+    } else {
+      return isValidNamedTypeSignature(signature.of)
+    }
+  } else if (signature instanceof Sum) {
+    // OPEN ISSUE -- Should Sum enforce uniqueness of its variants?
+    // Note: Array.prototype.some() will return False on an empty array. This works
+    // because an empty Product Field array is a valid Product signature.
+    return !signature.variants.some(sig => !isValidNamedTypeSignature(sig))
+  } else if (signature instanceof Product) {
+    const fieldNames: string[] = []
+    // Note: Array.prototype.some() will return False on an empty array. This works
+    // because an empty Product Field array is a valid Product signature.
+    return !signature.fields.some(field => {
+      // This logic returns TRUE if the Field is invalid
+      if (!field.name || field.name.length <= 0 || fieldNames.includes(field.name)) {
+        console.log(
+          `NamedType of a Product must have all unique ProductField names. ${JSON.stringify(
+            signature
+          )}`
+        )
+        return true
+      }
+      fieldNames.push(field.name)
+      return !isValidNamedTypeSignature(field.type)
+    })
+  } else if (signature instanceof FunctionType) {
+    const argumentNames: string[] = []
+    // Note: Array.prototype.some() will return False on an empty array. This works
+    // because an empty Product Field array is a valid Product signature.
+    const argumentsValidCheck: boolean = !signature.arguments.some(arg => {
+      // This logic returns TRUE if the Field is invalid
+      if (!arg.name || arg.name.length <= 0 || argumentNames.includes(arg.name)) {
+        console.log(
+          `NamedType of a FunctionType must have all unique Argument names. ${JSON.stringify(
+            signature
+          )}`
+        )
+        return true
+      }
+      argumentNames.push(arg.name)
+      return !isValidNamedTypeSignature(arg.type)
+    })
+
+    return argumentsValidCheck && isValidNamedTypeSignature(signature.resultType)
+  } else {
+    return false
   }
 }
