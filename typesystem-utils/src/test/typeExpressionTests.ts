@@ -32,20 +32,6 @@ it('cannot parse TypeParameter with empty name', () => {
   }).toThrowError('Cannot have a TypeParameter with empty Name field')
 })
 
-it('cannot parse Scalar with empty ID', () => {
-  const invalidEmpty = { scalar: '' }
-
-  expect(() => {
-    TypeExpression.parseValue(invalidEmpty)
-  }).toThrowError('Cannot have a Scalar with empty id field')
-})
-
-it('cannot construct Scalar with empty ID', () => {
-  expect(() => {
-    new Scalar({ id: '' })
-  }).toThrowError('Cannot have a Scalar with ID of an empty string')
-})
-
 it('cannot construct NonNull(of: NonNull)', () => {
   expect(() => {
     new NonNullType({

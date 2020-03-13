@@ -60,10 +60,6 @@ export class Scalar {
   readonly id: string
 
   constructor(props: Scalar) {
-    if (props.id.length <= 0) {
-      throw new Error('Cannot have a Scalar with ID of an empty string')
-    }
-
     this.id = props.id
   }
 }
