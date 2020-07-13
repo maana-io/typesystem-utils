@@ -10,7 +10,11 @@ export {
   Scalar,
   Sum,
   Product,
-  FunctionType
+  ProductField,
+  FunctionType,
+  Argument,
+  isValidLocator,
+  isValidNamedTypeSignature
 } from './model'
 
 export {
@@ -19,3 +23,5 @@ export {
   encodeTypeExpression,
   decodeTypeExpression
 } from './serialization'
+
+export * from './scalars'

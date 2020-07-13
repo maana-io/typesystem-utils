@@ -34,8 +34,9 @@ interface ProductDetailsFormat {
 }
 
 interface ProductFieldFormat {
-  name: string
-  description: string | null
+  id: string | null | undefined
+  name: string | null | undefined
+  description: string | null | undefined
   type: TypeExpressionFormat
 }
 
@@ -49,9 +50,9 @@ interface FunctionTypeDetailsFormat {
 }
 
 interface ArgumentFormat {
-  id: string
-  name: string
-  description: string | null
+  id: string | null | undefined
+  name: string | null | undefined
+  description: string | null | undefined
   type: TypeExpressionFormat
 }
 
@@ -84,6 +85,9 @@ const NonNullTypeCodec = new t.Type<m.NonNullType, NonNullTypeFormat>(
   (u): u is m.NonNullType => u instanceof m.NonNullType,
   (u, c) =>
     either.chain(t.interface({ nonNullOf: TypeExpressionCodec }).validate(u, c), nno => {
+      if (nno.nonNullOf instanceof m.NonNullType) {
+        return t.failure(u, c, 'Cannot have a NonNullType of a NonNullType')
+      }
       return t.success(
         new m.NonNullType({
           of: nno.nonNullOf
@@ -98,6 +102,9 @@ const TypeParameterCodec = new t.Type<m.TypeParameter, TypeParameterFormat>(
   (u): u is m.TypeParameter => u instanceof m.TypeParameter,
   (u, c) =>
     either.chain(t.type({ typeParameter: t.string }).validate(u, c), tp => {
+      if (tp.typeParameter.length == 0) {
+        return t.failure(u, c, 'Cannot have a TypeParameter with empty Name field')
+      }
       return t.success(
         new m.TypeParameter({
           name: tp.typeParameter
@@ -142,7 +149,8 @@ const ProductFieldCodec = new t.Type<m.ProductField, ProductFieldFormat>(
     either.chain(
       t
         .type({
-          name: t.string,
+          id: t.union([t.string, t.null]),
+          name: t.union([t.string, t.null]),
           description: t.union([t.string, t.null]),
           type: TypeExpressionCodec
         })
@@ -150,6 +158,7 @@ const ProductFieldCodec = new t.Type<m.ProductField, ProductFieldFormat>(
       pf => {
         return t.success(
           new m.ProductField({
+            id: pf.id,
             name: pf.name,
             description: pf.description,
             type: pf.type
@@ -157,7 +166,12 @@ const ProductFieldCodec = new t.Type<m.ProductField, ProductFieldFormat>(
         )
       }
     ),
-  pf => ({ name: pf.name, description: pf.description, type: TypeExpressionCodec.encode(pf.type) })
+  pf => ({
+    id: pf.id,
+    name: pf.name,
+    description: pf.description,
+    type: TypeExpressionCodec.encode(pf.type)
+  })
 )
 
 const ProductCodec = new t.Type<m.Product, ProductFormat>(
@@ -197,8 +211,8 @@ const ArgumentCodec = new t.Type<m.Argument, ArgumentFormat>(
     either.chain(
       t
         .type({
-          id: t.string,
-          name: t.string,
+          id: t.union([t.string, t.null]),
+          name: t.union([t.string, t.null]),
           description: t.union([t.string, t.null]),
           type: TypeExpressionCodec
         })

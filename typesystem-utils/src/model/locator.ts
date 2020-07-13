@@ -35,3 +35,26 @@ export class LocalNameLocator {
     this.name = props.name
   }
 }
+
+export function isValidLocator(locator: Locator): boolean {
+  if (!locator) return false
+
+  if (locator instanceof IDRefLocator) {
+    return locator.id !== undefined && locator.id.length > 0
+  }
+
+  if (locator instanceof ServiceAndNameLocator) {
+    return (
+      locator.serviceId !== undefined &&
+      locator.serviceId.length > 0 &&
+      locator.name !== undefined &&
+      locator.name.length > 0
+    )
+  }
+
+  if (locator instanceof LocalNameLocator) {
+    return locator.name !== undefined && locator.name.length > 0
+  }
+
+  return false
+}
