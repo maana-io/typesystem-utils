@@ -128,7 +128,7 @@ new ListType({
 
 ```
 {
-  "listOf": <inner type expression serialized>
+  "listOf": <serialized inner type expression>
 }
 ```
 
@@ -147,7 +147,7 @@ new NonNullType({
 **Serialization**:
 ```
 {
-  "nonNullOf": <inner type expression serialized>
+  "nonNullOf": <serialized inner type expression>
 }
 ```
 
@@ -302,5 +302,131 @@ new m.FunctionType({
     ],
     "resultType": <serialized type expression>
   }
+}
+```
+
+### Examples
+
+All of the examples above mention `<serialized type expression>` to describe nested types, example:
+
+Type Promise is generic over type of value V, with two fields - indicator if promise is ready, and a function
+to get value.
+
+Type defined in a model:
+
+```
+const promiseType = new Product({
+    fields: [
+      {
+        name: 'isReady',
+        type: new NonNullType({ of: new Scalar({ id: 'Boolean' })}) 
+      },
+      {
+        name: 'getValue',
+        type: new FunctionType({
+          arguments: [],
+          resultType: new TypeParameter({ name: 'V'})
+        })
+      }
+    ],
+    extendable: false
+  })
+```
+
+Serialized format:
+
+```
+{
+  "product": {
+    "fields": [
+      { "name": "isReady", "type": { "nonNullOf": { "scalar": "Boolean" } } },
+      {
+        "name": "getValue",
+        "type": {
+          "function": {
+            "arguments": [],
+            "resultType": { "typeParameter": "V" }
+          }
+        }
+      }
+    ],
+    "extendable": false
+  }
+}
+```
+
+References to types and functions are done using Locators, for instance, following is simplicitic definition of services,
+based on (non-existent at the moment) types Function and Type defined in 'io.maana.core' service:
+
+Model:
+
+```
+const IDScalar = new Scalar({ id: 'ID '})
+const StringScalar = new Scalar({ id: 'String' })
+
+const FunctionTypeRef = new ServiceAndNameLocator({ name: 'Function', serviceId: 'io.maana.core' })
+const TypeTypeRef = new ServiceAndNameLocator({ name: 'Type', serviceId: 'io.maana.core' })
+
+const logicServiceType = new Product({
+  extendable: false,
+  fields: [
+    { name: 'id', type: IDScalar },
+    { name: 'functions', type: new ListType({ of: FunctionTypeRef })},
+    { name: 'types', type: new ListType({ of: TypeTypeRef })}
+  ]
+})
+
+const externalServiceType = new Product({
+  extendable: false,
+  fields: [
+    { name: 'endpointUrl', type: StringScalar },
+    { name: 'graphQLSchema', type: StringScalar }
+  ]
+})
+
+const serviceType = new Sum({
+  variants: [
+    logicServiceType,
+    externalServiceType
+  ]
+})
+```
+
+Serialized format:
+
+```
+{
+  "sumOf": [
+    {
+      "product": {
+        "fields": [
+          { "name": "id", "type": { "scalar": "ID " } },
+          {
+            "name": "functions",
+            "type": {
+              "listOf": { "serviceAndName": { "serviceId": "io.maana.core", "name": "Function" }
+              }
+            }
+          },
+          {
+            "name": "types",
+            "type": {
+              "listOf": { "serviceAndName": { "serviceId": "io.maana.core", "name": "Type" }}
+            }
+          }
+        ],
+        "extendable": false
+      }
+    },
+    {
+      "product": {
+        "fields": [
+          { "name": "endpointUrl", "type": { "scalar": "String" } },
+          { "name": "graphQLSchema", "type": { "scalar": "String" } }
+        ],
+        "extendable": false
+      }
+    }
+  ]
 }
 ```
