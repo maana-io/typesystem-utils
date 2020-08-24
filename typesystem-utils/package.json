@@ -1,11 +1,15 @@
 {
   "name": "typesystem-utils",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "description": "Maana Q Type System utilities",
-  "main": "dist/index.js",
-  "types": "dist/index.d.ts",
+  "main": "index.js",
+  "types": "index.d.ts",
   "files": [
-    "/dist"
+    "index.d.ts",
+    "index.js",
+    "model",
+    "scalars",
+    "serialization"
   ],
   "scripts": {
     "test": "jest",
