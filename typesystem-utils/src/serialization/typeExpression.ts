@@ -149,9 +149,9 @@ const ProductFieldCodec = new t.Type<m.ProductField, ProductFieldFormat>(
     either.chain(
       t
         .type({
-          id: t.union([t.string, t.null]),
-          name: t.union([t.string, t.null]),
-          description: t.union([t.string, t.null]),
+          id: t.union([t.string, t.null, t.undefined]),
+          name: t.union([t.string, t.null, t.undefined]),
+          description: t.union([t.string, t.null, t.undefined]),
           type: TypeExpressionCodec
         })
         .validate(u, c),
@@ -211,9 +211,9 @@ const ArgumentCodec = new t.Type<m.Argument, ArgumentFormat>(
     either.chain(
       t
         .type({
-          id: t.union([t.string, t.null]),
-          name: t.union([t.string, t.null]),
-          description: t.union([t.string, t.null]),
+          id: t.union([t.string, t.null, t.undefined]),
+          name: t.union([t.string, t.null, t.undefined]),
+          description: t.union([t.string, t.null, t.undefined]),
           type: TypeExpressionCodec
         })
         .validate(u, c),
