@@ -15,6 +15,7 @@ import {
   FunctionType
 } from '../model'
 import { TypeExpression } from '../scalars'
+import { decodeTypeExpression } from '../serialization'
 
 it('cannot parse NonNull(of: NonNull)', () => {
   const invalidNonNullValue = { nonNullOf: { nonNullOf: { idRef: 'String' } } }
@@ -213,4 +214,10 @@ it('isValidTypeExpression can validate TypeExpressions', () => {
     extendable: true
   })
   expect(isValidNamedTypeSignature(invalidProductOfInvalidFunction)).toBe(false)
+})
+
+it('should load product fields that are not fully defined', () => {
+  const ser = '{"product":{"fields":[{"name":"id","type":{"scalar":"ID"}}],"extendable":false}}'
+  const decoded = decodeTypeExpression(JSON.parse(ser))
+  expect(isValidNamedTypeSignature(decoded)).toBe(true)
 })
