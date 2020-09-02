@@ -5,15 +5,15 @@ jobs:
   build:
     name: build typesystem-utils
     runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        node-version: [12.x]
     steps:
     - uses: actions/checkout@v2
     - name: Use Node.js ${{ matrix.node-version }}
       uses: actions/setup-node@v1
       with:
-        node-version: ${{ matrix.node-version }}
+        node-version: '12.x'
+        registry-url: 'https://npm.pkg.github.com'
+        # Defaults to the user or organization that owns the workflow file
+        scope: '@maana-io'
 
     - name: Cache node modules
       uses: actions/cache@v2
@@ -30,3 +30,7 @@ jobs:
 
     - run: npm install
     - run: npm run build
+    - run: npm pack
+    - run: npm publish
+      env:
+        NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
