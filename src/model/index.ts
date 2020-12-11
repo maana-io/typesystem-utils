@@ -13,3 +13,8 @@ export {
   Argument,
   isValidNamedTypeSignature
 } from './typeExpression'
+
+export {
+  traverseTypeExpression,
+  traverseTypeExpressionAsync
+} from './traversals'

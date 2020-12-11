@@ -1,6 +1,6 @@
 {
   "name": "@maana-io/typesystem-utils",
-  "version": "1.0.6",
+  "version": "1.0.7",
   "description": "Maana Q Type System utilities",
   "main": "index.js",
   "types": "index.d.ts",
@@ -17,7 +17,9 @@
     "format": "prettier --write \"src/**/*.ts\"",
     "generate": "graphql-codegen; prettier --write \"src/schemas/*-types.ts\""
   },
-  "publishConfig": { "registry": "https://npm.pkg.github.com/" },
+  "publishConfig": {
+    "registry": "https://npm.pkg.github.com/"
+  },
   "dependencies": {
     "fp-ts": "^2.1.2",
     "graphql": "^14.4.2",

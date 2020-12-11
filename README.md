@@ -430,3 +430,64 @@ Serialized format:
   ]
 }
 ```
+
+## Type expression traversals
+
+This package also exposes two functions that make type expression interrogation and modification easier, `traverseTypeExpression` and `traverseTypeExpressionAsync`.
+These functions take a list of callbacks for specific type expression types, type expression, and produce a type expression that applied callbacks to all type expressions,
+recursively.
+
+Mapper has the following shape (async version takes async functions as arguments):
+```
+type TraverseMapper = {
+  onIDRefLocator?: (te: IDRefLocator) => TypeExpression
+  onLocalNameLocator?: (te: LocalNameLocator) => TypeExpression
+  onServiceAndNameLocator?: (te: ServiceAndNameLocator) => TypeExpression
+  onScalar?: (te: Scalar) => TypeExpression
+  onListType?: (te: ListType) => TypeExpression
+  onNonNullType?: (te: NonNullType) => TypeExpression
+  onProduct?: (te: Product) => TypeExpression
+  onSum?: (te: Sum) => TypeExpression
+  onTypeParameter?: (te: TypeParameter) => TypeExpression
+  onFunctionType?: (te: FunctionType) => TypeExpression
+}
+```
+
+### Usage examples
+
+Traverse type expression recursively and collect all locators, without modification of original type expression
+
+```
+export function extractLocatorsFromTypeExpression(typeExpression: tsutils.TypeExpression): tsutils.Locator[] {
+  const locators: tsutils.Locator[] = []
+
+  function addLocator(locator: tsutils.Locator): tsutils.Locator {
+    locators.push(locator)
+    return locator
+  }
+
+  traverseTypeExpression(typeExpression, {
+    onIDRefLocator: addLocator,
+    onServiceAndNameLocator: addLocator,
+    onLocalNameLocator: addLocator
+  })
+
+  return _.uniqWith(locators, _.isEqual)
+}
+```
+
+Rewrite all IDRefLocators with ServiceAndNameLocators
+
+```
+export async function rewriteIdRefToSnNLocator(te: tsutils.TypeExpression, store: Store) {
+  return traverseTypeExpressionAsync(te, {
+    onIDRefLocator: async (loc) => {
+      const type = await store.type(loc)
+      return type ? new tsutils.ServiceAndNameLocator({ serviceId: type.serviceId, name: type.name }) : new tsutils.ServiceAndNameLocator({
+        serviceId: "Unknown service",
+        name: JSON.stringify(tsutils.encodeTypeExpression(loc))
+      })
+    }
+  })
+}
+```

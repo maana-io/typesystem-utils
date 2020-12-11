@@ -14,7 +14,9 @@ export {
   FunctionType,
   Argument,
   isValidLocator,
-  isValidNamedTypeSignature
+  isValidNamedTypeSignature,
+  traverseTypeExpression,
+  traverseTypeExpressionAsync
 } from './model'
 
 export {
