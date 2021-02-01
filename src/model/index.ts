@@ -1,4 +1,10 @@
-export { Locator, IDRefLocator, LocalNameLocator, ServiceAndNameLocator, isValidLocator } from './locator'
+export {
+  Locator,
+  IDRefLocator,
+  LocalNameLocator,
+  ServiceAndNameLocator,
+  isValidLocator
+} from './locator'
 
 export {
   TypeExpression,
@@ -14,7 +20,4 @@ export {
   isValidNamedTypeSignature
 } from './typeExpression'
 
-export {
-  traverseTypeExpression,
-  traverseTypeExpressionAsync
-} from './traversals'
+export { traverseTypeExpression, traverseTypeExpressionAsync } from './traversals'

@@ -14,6 +14,8 @@ import {
   Argument,
   FunctionType
 } from '../model'
+import { Enum } from '../model/typeExpression'
+import { BooleanValue, LongValue, StringValue } from '../model/values'
 import { TypeExpression } from '../scalars'
 import { decodeTypeExpression } from '../serialization'
 
@@ -214,6 +216,34 @@ it('isValidTypeExpression can validate TypeExpressions', () => {
     extendable: true
   })
   expect(isValidNamedTypeSignature(invalidProductOfInvalidFunction)).toBe(false)
+
+  // Enum type
+  const stringEnum = new Enum({
+    of: new ServiceAndNameLocator({ serviceId: 'io.maana.core', name: 'String' }),
+    values: [
+      new StringValue({ value: 'A' }),
+      new StringValue({ value: 'B' }),
+      new StringValue({ value: 'C' })
+    ]
+  })
+
+  const mixedTypesEnum = new Enum({
+    of: new ServiceAndNameLocator({ serviceId: 'io.maana.core', name: 'String' }),
+    values: [
+      new StringValue({ value: 'A' }),
+      new LongValue({ value: '5' }),
+      new BooleanValue({ value: false })
+    ]
+  })
+
+  const emptyValuesEnum = new Enum({
+    of: new ServiceAndNameLocator({ serviceId: 'io.maana.core', name: 'String' }),
+    values: []
+  })
+
+  expect(isValidNamedTypeSignature(stringEnum)).toBe(true)
+  expect(isValidNamedTypeSignature(mixedTypesEnum)).toBe(false)
+  expect(isValidNamedTypeSignature(emptyValuesEnum)).toBe(false)
 })
 
 it('should load product fields that are not fully defined', () => {
