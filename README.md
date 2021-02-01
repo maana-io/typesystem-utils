@@ -2,19 +2,20 @@
 
 Collection of utilities to work with Q type system, specifically with its Public API representation
 
-# TypeExpression and Locator Scalars
+# TypeExpression, Locator and Value Scalars
 
 To use scalars, add them to your schema:
 
 ```
 scalar Locator
 scalar TypeExpression
+scalar Value
 ```
 
 and add them to your resolver map:
 
 ```
-import { Locator, TypeExpression } from 'typesystem-utils/scalars'
+import { Locator, TypeExpression, Value } from 'typesystem-utils/scalars'
 
   ...
   Mutation: {
@@ -24,7 +25,8 @@ import { Locator, TypeExpression } from 'typesystem-utils/scalars'
     ...TypeResolver.Mutation
   },
   Locator,
-  TypeExpression
+  TypeExpression,
+  Value
 ```
 
 You can also use `encodeLocator`, `decodeLocator`, `encodeTypeExpression` and `decodeTypeExpression`
@@ -305,6 +307,44 @@ new m.FunctionType({
 }
 ```
 
+
+#### Enum Type
+
+Enum type is a type expression that allows a finite defined set of values of the same type.
+
+**Model**:
+
+```
+new m.Enum({
+    of: new ServiceAndNameLocator({ serviceId: 'io.maana.core', name: 'String' }),
+    values: [
+      new StringValue({ value: 'A' }),
+      new StringValue({ value: 'B' }),
+      new StringValue({ value: 'C' })
+    ]
+  })
+```
+
+**Serialization**:
+
+```
+{
+  "enum": {
+    "of": {
+      "serviceAndName": {
+        "serviceId": "io.maana.core",
+        "name": "String"
+      }
+    },
+    "values": [
+      { "string": "A" },
+      { "string": "B" },
+      { "string": "C" }
+    ]
+  }
+}
+```
+
 ### Examples
 
 All of the examples above mention `<serialized type expression>` to describe nested types, example:
@@ -450,6 +490,7 @@ type TraverseMapper = {
   onSum?: (te: Sum) => TypeExpression
   onTypeParameter?: (te: TypeParameter) => TypeExpression
   onFunctionType?: (te: FunctionType) => TypeExpression
+  onEnumType?: (te: Enum) => TypeExpression
 }
 ```
 

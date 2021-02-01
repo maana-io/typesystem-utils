@@ -1,6 +1,6 @@
 import { GraphQLScalarType } from 'graphql'
 import { Kind } from 'graphql/language'
-import { encodeTypeExpression, decodeTypeExpression } from '../serialization/typeExpression'
+import { encodeTypeExpression, decodeTypeExpression } from '../serialization'
 import { parseObject } from './util'
 
 export const TypeExpression = new GraphQLScalarType({

@@ -1,6 +1,7 @@
 import * as t from 'io-ts'
 import * as m from '../model/typeExpression'
 import * as ls from './locator'
+import * as v from './values'
 import { either, isRight } from 'fp-ts/lib/Either'
 import { PathReporter } from 'io-ts/lib/PathReporter'
 
@@ -56,6 +57,13 @@ interface ArgumentFormat {
   type: TypeExpressionFormat
 }
 
+interface EnumFormat {
+  enum: {
+    of: TypeExpressionFormat
+    values: v.ValueFormat[]
+  }
+}
+
 type TypeExpressionFormat =
   | NonNullTypeFormat
   | ListTypeFormat
@@ -65,6 +73,7 @@ type TypeExpressionFormat =
   | ProductFormat
   | FunctionTypeFormat
   | ls.LocatorFormat
+  | EnumFormat
 
 const ListTypeCodec = new t.Type<m.ListType, ListTypeFormat>(
   'ListType',
@@ -263,6 +272,33 @@ const FunctionTypeCodec = new t.Type<m.FunctionType, FunctionTypeFormat>(
   })
 )
 
+const EnumCodec = new t.Type<m.Enum, EnumFormat>(
+  'Enum',
+  (u): u is m.Enum => u instanceof m.Enum,
+  (u, c) =>
+    either.chain(
+      t
+        .type({ enum: t.type({ of: TypeExpressionCodec, values: t.array(v.ValueCodec) }) })
+        .validate(u, c),
+      et => {
+        return t.success(
+          new m.Enum({
+            of: et.enum.of,
+            values: et.enum.values
+          })
+        )
+      }
+    ),
+  et => {
+    return {
+      enum: {
+        of: TypeExpressionCodec.encode(et.of),
+        values: et.values.map(v.ValueCodec.encode)
+      }
+    }
+  }
+)
+
 const TypeExpressionCodec: t.Type<m.TypeExpression, TypeExpressionFormat> = t.union([
   ls.LocatorCodec,
   ListTypeCodec,
@@ -271,7 +307,8 @@ const TypeExpressionCodec: t.Type<m.TypeExpression, TypeExpressionFormat> = t.un
   ScalarCodec,
   SumCodec,
   ProductCodec,
-  FunctionTypeCodec
+  FunctionTypeCodec,
+  EnumCodec
 ])
 
 /**

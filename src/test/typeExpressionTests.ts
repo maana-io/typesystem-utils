@@ -12,10 +12,12 @@ import {
   Product,
   ProductField,
   Argument,
-  FunctionType
+  FunctionType,
+  Enum,
+  BooleanValue,
+  LongValue,
+  StringValue
 } from '../model'
-import { Enum } from '../model/typeExpression'
-import { BooleanValue, LongValue, StringValue } from '../model/values'
 import { TypeExpression } from '../scalars'
 import { decodeTypeExpression } from '../serialization'
 
@@ -244,10 +246,4 @@ it('isValidTypeExpression can validate TypeExpressions', () => {
   expect(isValidNamedTypeSignature(stringEnum)).toBe(true)
   expect(isValidNamedTypeSignature(mixedTypesEnum)).toBe(false)
   expect(isValidNamedTypeSignature(emptyValuesEnum)).toBe(false)
-})
-
-it('should load product fields that are not fully defined', () => {
-  const ser = '{"product":{"fields":[{"name":"id","type":{"scalar":"ID"}}],"extendable":false}}'
-  const decoded = decodeTypeExpression(JSON.parse(ser))
-  expect(isValidNamedTypeSignature(decoded)).toBe(true)
 })
