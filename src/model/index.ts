@@ -34,4 +34,9 @@ export {
   StringValue
 } from './values'
 
-export { traverseTypeExpression, traverseTypeExpressionAsync } from './traversals'
+export {
+  traverseTypeExpression,
+  traverseTypeExpressionAsync,
+  TraverseMapper,
+  TraverseMapperAsync
+} from './traversals'

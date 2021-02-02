@@ -14,7 +14,7 @@ import {
 } from './typeExpression'
 import { encodeTypeExpression } from '../serialization'
 
-type TraverseMapper = {
+export type TraverseMapper = {
   onIDRefLocator?: (te: IDRefLocator) => TypeExpression
   onLocalNameLocator?: (te: LocalNameLocator) => TypeExpression
   onServiceAndNameLocator?: (te: ServiceAndNameLocator) => TypeExpression
@@ -100,7 +100,7 @@ export function traverseTypeExpression(te: TypeExpression, mapper: TraverseMappe
   }
 }
 
-type TraverseMapperAsync = {
+export type TraverseMapperAsync = {
   onIDRefLocator?: (te: IDRefLocator) => Promise<TypeExpression>
   onLocalNameLocator?: (te: LocalNameLocator) => Promise<TypeExpression>
   onServiceAndNameLocator?: (te: ServiceAndNameLocator) => Promise<TypeExpression>
