@@ -27,7 +27,9 @@ export {
   isValidLocator,
   isValidNamedTypeSignature,
   traverseTypeExpression,
-  traverseTypeExpressionAsync
+  traverseTypeExpressionAsync,
+  TraverseMapper,
+  TraverseMapperAsync
 } from './model'
 
 export {
