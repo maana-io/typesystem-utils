@@ -1,6 +1,6 @@
 {
   "name": "@maana-io/typesystem-utils",
-  "version": "1.0.7",
+  "version": "1.0.8",
   "description": "Maana Q Type System utilities",
   "main": "index.js",
   "types": "index.d.ts",
@@ -14,8 +14,7 @@
   "scripts": {
     "test": "jest",
     "build": "tsc",
-    "format": "prettier --write \"src/**/*.ts\"",
-    "generate": "graphql-codegen; prettier --write \"src/schemas/*-types.ts\""
+    "format": "prettier --write \"src/**/*.ts\""
   },
   "publishConfig": {
     "registry": "https://npm.pkg.github.com/"
@@ -33,7 +32,7 @@
     "prettier": "1.18.2",
     "ts-jest": "24.0.2",
     "tsc-watch": "^2.4.0",
-    "typescript": "3.5.3"
+    "typescript": "3.9.4"
   },
   "jest": {
     "verbose": true,

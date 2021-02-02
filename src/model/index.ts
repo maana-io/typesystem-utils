@@ -1,4 +1,10 @@
-export { Locator, IDRefLocator, LocalNameLocator, ServiceAndNameLocator, isValidLocator } from './locator'
+export {
+  Locator,
+  IDRefLocator,
+  LocalNameLocator,
+  ServiceAndNameLocator,
+  isValidLocator
+} from './locator'
 
 export {
   TypeExpression,
@@ -11,10 +17,21 @@ export {
   ProductField,
   FunctionType,
   Argument,
+  Enum,
   isValidNamedTypeSignature
 } from './typeExpression'
 
 export {
-  traverseTypeExpression,
-  traverseTypeExpressionAsync
-} from './traversals'
+  Value,
+  BooleanValue,
+  DoubleValue,
+  EnumValue,
+  FunctionValue,
+  IDValue,
+  ListValue,
+  LongValue,
+  ObjectValue,
+  StringValue
+} from './values'
+
+export { traverseTypeExpression, traverseTypeExpressionAsync } from './traversals'

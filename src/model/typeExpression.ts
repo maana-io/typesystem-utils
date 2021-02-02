@@ -6,6 +6,9 @@ import {
   isValidLocator
 } from './locator'
 import { TypeExpression } from '../scalars'
+import { Value } from './values'
+import { cons } from 'fp-ts/lib/Array'
+import { sign } from 'fp-ts/lib/Ordering'
 
 /**
  * Type expression may be either:
@@ -25,6 +28,7 @@ export type TypeExpression =
   | Sum
   | Product
   | FunctionType
+  | Enum
 
 export class ListType {
   readonly of: TypeExpression
@@ -120,11 +124,26 @@ export class Argument {
   }
 }
 
+export class Enum {
+  readonly values: Value[]
+  readonly of: TypeExpression
+
+  constructor(props: Enum) {
+    this.values = props.values
+    this.of = props.of
+  }
+}
+
 export function isValidNamedTypeSignature(signature: TypeExpression): boolean {
-  if (signature instanceof Scalar || signature instanceof Sum || signature instanceof Product) {
+  if (
+    signature instanceof Scalar ||
+    signature instanceof Sum ||
+    signature instanceof Product ||
+    signature instanceof Enum
+  ) {
     return validateSignature(signature)
   } else {
-    console.log('NamedType Signature root must be Scalar, Sum, or Product.')
+    console.log('NamedType Signature root must be Scalar, Sum, Product or Enum.')
     return false
   }
 }
@@ -199,6 +218,19 @@ function validateSignature(signature: TypeExpression): boolean {
     })
 
     return argumentsValidCheck && validateSignature(signature.resultType)
+  } else if (signature instanceof Enum) {
+    const valueTypes = new Set(signature.values.map(i => i.constructor.name))
+    if (signature.values.length == 0) {
+      console.log(`Enum type must hold at least one value`)
+      return false
+    }
+    if (valueTypes.size > 1) {
+      console.log(
+        `Enum type can only hold values of the same type. Got ${JSON.stringify([...valueTypes])}`
+      )
+      return false
+    }
+    return validateSignature(signature.of)
   } else {
     return false
   }
