@@ -1,9 +1,10 @@
 {
-  "name": "@maana-io/typesystem-utils",
+  "name": "@io-maana/typesystem-utils",
   "version": "1.0.9",
   "description": "Maana Q Type System utilities",
   "main": "index.js",
   "types": "index.d.ts",
+  "license": "MIT",
   "files": [
     "index.d.ts",
     "index.js",
