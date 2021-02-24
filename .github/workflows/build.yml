@@ -12,7 +12,6 @@ jobs:
       with:
         node-version: '12.x'
         registry-url: 'https://registry.npmjs.org'
-        scope: '@io-maana'
 
     - name: Cache node modules
       uses: actions/cache@v2
