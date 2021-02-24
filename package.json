@@ -17,6 +17,9 @@
     "build": "tsc",
     "format": "prettier --write \"src/**/*.ts\""
   },
+  "publishConfig": {
+    "access": "public"
+  },
   "dependencies": {
     "fp-ts": "^2.1.2",
     "graphql": "^14.4.2",

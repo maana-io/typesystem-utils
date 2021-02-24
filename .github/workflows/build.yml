@@ -30,6 +30,6 @@ jobs:
     - run: npm install
     - run: npm run build
     - run: npm pack
-    - run: npm publish
+    - run: npm publish --tag ${{ github.event.inputs.publish-tag }}
       env:
         NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
